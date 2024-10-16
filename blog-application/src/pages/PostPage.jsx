@@ -11,7 +11,7 @@ function PostPage() {
   const { id } = useParams();
 
   useEffect(() => {
-    fetch(`http://localhost:4000/post/${id}`)
+    fetch(`hhttps://blog-application-backend-3pg1.onrender.com/${id}`)
       .then((response) => response.json())
       .then((postInfo) => {
         setPostInfo(postInfo);
@@ -20,7 +20,7 @@ function PostPage() {
   }, [id, userInfo.id]);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/post/${id}/comments`)
+    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comments`)
       .then((response) => response.json())
       .then((commentsData) => {
         setComments(commentsData);
@@ -28,7 +28,7 @@ function PostPage() {
   }, [id]);
 
   const handleLike = () => {
-    fetch(`http://localhost:4000/post/${id}/like`, {
+    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/like`, {
       method: 'POST',
       credentials: 'include',
     })
@@ -48,7 +48,7 @@ function PostPage() {
   const handleCommentSubmit = (e) => {
     
 
-    fetch(`http://localhost:4000/post/${id}/comment`, {
+    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comment`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -65,7 +65,7 @@ function PostPage() {
   };
 
   const handleDeleteComment = (commentId) => {
-    fetch(`http://localhost:4000/post/${id}/comment/${commentId}`, {
+    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comment/${commentId}`, {
       method: 'DELETE',
       credentials: 'include',
     })
@@ -81,7 +81,7 @@ function PostPage() {
   return (
     <article className="prose prose-gray max-w-6xl mx-auto dark:prose-invert px-4 sm:px-6 lg:px-8">
       <img
-        src={`http://localhost:4000/${postInfo.cover}`}
+        src={`https://blog-application-backend-3pg1.onrender.com/${postInfo.cover}`}
         alt={postInfo.title}
         className="w-full max-w-full h-auto max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-hidden rounded-lg object-cover"
       />

@@ -13,7 +13,7 @@ export default function LoginPage() {
     const user = { username, password };
 
     try {
-      const response = await fetch('http://localhost:4000/login', {
+      const response = await fetch('https://blog-application-backend-3pg1.onrender.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
