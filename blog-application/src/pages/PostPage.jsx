@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 
 function PostPage() {
@@ -9,26 +9,29 @@ function PostPage() {
   const [comments, setComments] = useState([]);
   const { userInfo } = useContext(UserContext);
   const { id } = useParams();
+  const navigate = useNavigate(); // for redirection after delete
 
   useEffect(() => {
-    fetch(`hhttps://blog-application-backend-3pg1.onrender.com/${id}`)
-      .then((response) => response.json())
+    fetch(`http://localhost:4000/post/${id}`) // Correct URL
+      .then((response) => {
+        if (!response.ok) throw new Error('Post not found');
+        return response.json();
+      })
       .then((postInfo) => {
         setPostInfo(postInfo);
         setHasLiked(postInfo.likedBy?.includes(userInfo.id));
-      });
+      })
+      .catch(err => console.error(err));
   }, [id, userInfo.id]);
 
   useEffect(() => {
-    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comments`)
+    fetch(`http://localhost:4000/post/${id}/comments`)
       .then((response) => response.json())
-      .then((commentsData) => {
-        setComments(commentsData);
-      });
+      .then((commentsData) => setComments(commentsData));
   }, [id]);
 
   const handleLike = () => {
-    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/like`, {
+    fetch(`http://localhost:4000/post/${id}/like`, {
       method: 'POST',
       credentials: 'include',
     })
@@ -41,47 +44,63 @@ function PostPage() {
           }));
           setHasLiked(true);
         }
-      })
-      .catch((error) => console.error('Error:', error));
+      });
   };
 
   const handleCommentSubmit = (e) => {
-    
+    e.preventDefault();
 
-    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comment`, {
+    fetch(`http://localhost:4000/post/${id}/comment`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: commentText }),
     })
       .then((response) => response.json())
-      .then((newComment) => {
-        setComments([...comments, newComment]);
+      .then(() => {
         setCommentText('');
-      })
-      .catch((error) => console.error('Error:', error));
+        fetch(`http://localhost:4000/post/${id}/comments`)
+          .then((response) => response.json())
+          .then((commentsData) => setComments(commentsData));
+      });
   };
 
   const handleDeleteComment = (commentId) => {
-    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}/comment/${commentId}`, {
+    fetch(`http://localhost:4000/post/${id}/comment/${commentId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+      .then(() => {
+        setComments(comments.filter((comment) => comment._id !== commentId));
+      });
+  };
+
+  const handleDeletePost = () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+
+    fetch(`http://localhost:4000/post/${postInfo._id}`, {
       method: 'DELETE',
       credentials: 'include',
     })
       .then((response) => response.json())
-      .then(() => {
-        setComments(comments.filter((comment) => comment._id !== commentId));
+      .then((data) => {
+        if (data.message === 'Post deleted successfully') {
+          alert('Post deleted');
+          navigate('/'); // Redirect to homepage
+        }
       })
-      .catch((error) => console.error('Error:', error));
+      .catch((error) => console.error('Error deleting post:', error));
   };
 
-  if (!postInfo) return '';
+  if (!postInfo || !postInfo.author) {
+    return <div>Loading or Post Not Found...</div>;
+  }
 
   return (
     <article className="prose prose-gray max-w-6xl mx-auto dark:prose-invert px-4 sm:px-6 lg:px-8">
       <img
-        src={`https://blog-application-backend-3pg1.onrender.com/${postInfo.cover}`}
+        src={`http://localhost:4000/${postInfo.cover}`}
         alt={postInfo.title}
         className="w-full max-w-full h-auto max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-hidden rounded-lg object-cover"
       />
@@ -100,11 +119,21 @@ function PostPage() {
           {new Date(postInfo.createdAt).toLocaleDateString()}
         </p>
       </div>
+
+      {/* Edit & Delete Options */}
       {userInfo.id === postInfo.author._id && (
-        <div className="mt-4">
-          <Link to={`/edit/${postInfo._id}`}>Edit this post</Link>
+        <div className="mt-4 flex gap-4">
+          <Link to={`/edit/${postInfo._id}`} className="text-blue-600 hover:underline">Edit this post</Link>
+          <button
+            onClick={handleDeletePost}
+            className="text-red-600 hover:underline"
+          >
+            Delete this post
+          </button>
         </div>
       )}
+
+      {/* Like Section */}
       <div className="mt-8">
         <button
           onClick={handleLike}

@@ -9,7 +9,7 @@ export default function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('https://blog-application-backend-3pg1.onrender.com/signup', {
+    const response = await fetch('http://localhost:4000/signup', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
       headers: { 'Content-Type': 'application/json' }

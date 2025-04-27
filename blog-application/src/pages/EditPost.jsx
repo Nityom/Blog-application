@@ -13,7 +13,7 @@ function EditPost() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}`)
+    fetch(`http://localhost:4000/post/${id}`)
       .then(response => response.json())
       .then(postInfo => {
         setTitle(postInfo.title);
@@ -32,7 +32,7 @@ function EditPost() {
     if (file) formData.append('file', file[0]); // File is an array; use the first file
 
     try {
-      const response = await fetch(`https://blog-application-backend-3pg1.onrender.com/post/${id}`, {
+      const response = await fetch(`http://localhost:4000/post/${id}`, {
         method: 'PUT', // Use PUT for updating; change to POST if creating a new post
         body: formData,
       });
